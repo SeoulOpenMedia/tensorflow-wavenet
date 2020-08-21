@@ -24,10 +24,11 @@ DATA_DIRECTORY = './VCTK-Corpus'
 LOGDIR_ROOT = './logdir'
 CHECKPOINT_EVERY = 50
 NUM_STEPS = int(1e5)
-LEARNING_RATE = 1e-2
-WAVENET_PARAMS = 'wavenet_params/wavenet_params_default.json'
+LEARNING_RATE = 1e-3
+WAVENET_PARAMS = './wavenet_params.json'
+WAVENET_PARAMS_KEY = 'default'
 STARTED_DATESTRING = "{0:%Y%m%d_%H:%M}".format(datetime.now())
-SAMPLE_SIZE = 80000
+SAMPLE_SIZE = 100000
 L2_REGULARIZATION_STRENGTH = 0
 SILENCE_THRESHOLD = 0.01
 EPSILON = 0.001
@@ -35,6 +36,10 @@ MOMENTUM = 0.9
 MAX_TO_KEEP = 5
 METADATA = False
 
+if os.environ.get('USER_NAME'):
+    USER_NAME = os.environ.get('USER_NAME')
+else:
+    USER_NAME = 'default'
 
 def get_arguments():
     def _str_to_bool(s):
@@ -78,6 +83,8 @@ def get_arguments():
                         help='Learning rate for training. Default: ' + str(LEARNING_RATE) + '.')
     parser.add_argument('--wavenet_params', type=str, default=WAVENET_PARAMS,
                         help='JSON file with the network parameters. Default: ' + WAVENET_PARAMS + '.')
+    parser.add_argument('--wavenet_params_key', type=str, default=WAVENET_PARAMS_KEY,
+                        help='Key for wavenet_params.json file, to choose parameters by key.')
     parser.add_argument('--sample_size', type=int, default=SAMPLE_SIZE,
                         help='Concatenate and cut audio samples to this many '
                         'samples. Default: ' + str(SAMPLE_SIZE) + '.')
@@ -140,6 +147,7 @@ def load(saver, sess, logdir):
 
 
 def get_default_logdir(logdir_root, _dataset):
+    dataset_name = '_'.join(''.join(data_dir.split('.')).split('/'))
     logdir = os.path.join(logdir_root, 'train', STARTED_DATESTRING+"_"+_dataset)
     return logdir
 
@@ -204,16 +212,8 @@ def main():
     # if the trained model is written into an arbitrary location.
     is_overwritten_training = logdir != restore_from
 
-    # open wavenet_params file
-    if args.wavenet_params.startswith('wavenet_params/') or args.wavenet_params.startswith('.'):
-        with open(args.wavenet_params, 'r') as config_file:
-            wavenet_params = json.load(config_file)
-    elif args.wavenet_params.startswith('wavenet_params'):
-        with open('wavenet_params/'+args.wavenet_params, 'r') as config_file:
-            wavenet_params = json.load(config_file)
-    else:
-        with open('wavenet_params/wavenet_params_'+args.wavenet_params, 'r') as config_file:
-            wavenet_params = json.load(config_file)   
+    with open(args.wavenet_params, 'r') as f:
+        wavenet_params = json.load(f)[WAVENET_PARAMS_KEY]
 
     # Create coordinator.
     coord = tf.train.Coordinator()
