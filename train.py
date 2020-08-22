@@ -24,10 +24,10 @@ DATA_DIRECTORY = './VCTK-Corpus'
 LOGDIR_ROOT = './logdir'
 CHECKPOINT_EVERY = 50
 NUM_STEPS = int(1e5)
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-2
 WAVENET_PARAMS = './wavenet_params.json'
 WAVENET_PARAMS_KEY = 'default'
-STARTED_DATESTRING = "{0:%Y%m%d_%H:%M}".format(datetime.now())
+STARTED_DATESTRING = "{:02d}{:02d}{:02d}_{:02d}:{:02d}".format(datetime.now().year-2000, datetime.now().month, int((datetime.now().day+(datetime.now().hour+9)/24)%31), int((datetime.now().hour+9)%24), datetime.now().minute)
 SAMPLE_SIZE = 100000
 L2_REGULARIZATION_STRENGTH = 0
 SILENCE_THRESHOLD = 0.01
@@ -147,7 +147,6 @@ def load(saver, sess, logdir):
 
 
 def get_default_logdir(logdir_root, _dataset):
-    dataset_name = '_'.join(''.join(data_dir.split('.')).split('/'))
     logdir = os.path.join(logdir_root, 'train', STARTED_DATESTRING+"_"+_dataset)
     return logdir
 
