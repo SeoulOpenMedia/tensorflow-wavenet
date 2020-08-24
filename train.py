@@ -22,15 +22,15 @@ from wavenet import WaveNetModel, AudioReader, optimizer_factory
 BATCH_SIZE = 1
 DATA_DIRECTORY = './VCTK-Corpus'
 LOGDIR_ROOT = './logdir'
-CHECKPOINT_EVERY = 50
-NUM_STEPS = int(1e5)
-LEARNING_RATE = 1e-2
+CHECKPOINT_EVERY = 100
+NUM_STEPS = int(1e4)*5
+LEARNING_RATE = 1e-3*2
 WAVENET_PARAMS = './wavenet_params.json'
 WAVENET_PARAMS_KEY = 'default'
 STARTED_DATESTRING = "{:02d}{:02d}{:02d}_{:02d}:{:02d}".format(datetime.now().year-2000, datetime.now().month, int((datetime.now().day+(datetime.now().hour+9)/24)%31), int((datetime.now().hour+9)%24), datetime.now().minute)
-SAMPLE_SIZE = 100000
+SAMPLE_SIZE = 80000
 L2_REGULARIZATION_STRENGTH = 0
-SILENCE_THRESHOLD = 0.01
+SILENCE_THRESHOLD = 0
 EPSILON = 0.001
 MOMENTUM = 0.9
 MAX_TO_KEEP = 5
@@ -123,7 +123,7 @@ def save(saver, sess, logdir, step):
         os.makedirs(logdir)
 
     saver.save(sess, checkpoint_path, global_step=step)
-    print(' Done.')
+    print("Done at {:02d}{:02d}{:02d}_{:02d}:{:02d}".format(datetime.now().year-2000, datetime.now().month, int((datetime.now().day+(datetime.now().hour+9)/24)%31), int((datetime.now().hour+9)%24), datetime.now().minute))
 
 
 def load(saver, sess, logdir):
